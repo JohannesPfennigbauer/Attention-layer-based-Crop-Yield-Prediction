@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Layer, Conv1D, Dense, LSTM, Flatten, Concatenate, AveragePooling1D
+from tensorflow.keras.layers import Conv1D, Dense, LSTM, Flatten, Concatenate, AveragePooling1D
 
 class LRPConv1D(Conv1D):
     def call(self, inputs):
