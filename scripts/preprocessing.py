@@ -1,6 +1,9 @@
 import numpy as np
 
 def Preprocess(time_steps, start_year, save=False):
+    """
+    Main function to execute the preprocessing. More details in the functions preprocess_data and format_data.
+    """
     BigX = np.load('../data/soybean_data_compressed.npz') ## order: locID, year, yield, W(52*6), S(6*11), P(14)
     X=BigX['data']
     time_steps = 5      # number of time steps to include last years average yield for LSTM
@@ -23,6 +26,14 @@ def Preprocess(time_steps, start_year, save=False):
     
     
 def preprocess_data(X, time_steps):
+    """
+    Preprocessing steps:
+    1. Remove low yield observations
+    2. Calculate average yield of each year and standardize it
+    3. Standardize the data on the training data only
+    4. Add time steps
+    """
+    
     print("--- Preprocessing ---")
     # 1. remove low yield observations
     X = np.nan_to_num(X)
@@ -61,13 +72,16 @@ def preprocess_data(X, time_steps):
 
 
 def format_data(X, time_steps, start_year):
+    """
+    Format the data for LSTM model.
+    """
     
     # training data
     X_train = X[(X[:, 1] <= 2016) & (X[:, 1] >= start_year)]
     # X_train = get_sample(X_train, batch_size) if batch_size > 0 else X_train
     y_train = X_train[:, 2].reshape(-1, 1, 1)
     X_train = X_train[:, 3:]          # without loc_id, year, yield // shape (*, 392 + time_steps)
-    print(f"Train data used: {X_train.shape}, starting from {start_year}")
+    print(f"Train data used: {X_train.shape}, starting from year {start_year}.")
 
     X_train = np.expand_dims(X_train, axis=-1)    
     X_train_in = {f'w{i}': X_train[:, 52*i:52*(i+1), :] for i in range(6)}
@@ -105,6 +119,10 @@ def format_data(X, time_steps, start_year):
 
 
 def get_sample(X, batch_size):
+    """
+    Get a random sample of the data. For testing purposes only, not used in final model.
+    """
+    
     sample = np.zeros(shape = [batch_size, X.shape[1]])
 
     for i in range(batch_size):
