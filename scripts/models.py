@@ -147,7 +147,7 @@ class OgModel(baseModel):
         m_input = Input(shape=(14, 1), dtype=tf.float32, name='p')
         static_features = Concatenate()([w_out, s_out, Reshape((14,))(m_input)])
         print("W+S+M concatenated:", static_features.shape)
-        static_features = Dense(64, activation='relu', kernel_regularizer=l2(0.01))(static_features)
+        static_features = Dense(64, activation='relu', kernel_regularizer=l2(0.01), name='final_CNN_layer')(static_features)
         print("W+S+M after Dense:", static_features.shape)
         
         print(" - LSTM for yield data - ")
@@ -282,6 +282,81 @@ class AttModel(baseModel):
 
             
 
-    
 
-# class LrpModel:
+class ModelWithLRP(baseModel):
+    def __init__(self, learning_rate, alpha, beta, time_steps, num_units, num_layers, dropout):
+        super().__init__(learning_rate, alpha, beta)
+        self.time_steps = time_steps
+        self.num_units = num_units
+        self.num_layers = num_layers
+        self.dropout = dropout
+        
+    def conv_W(self, input_shape):
+        inputs = Input(shape=input_shape)
+
+        # Layer 1: Extract initial features
+        X = Conv1D(filters=8, kernel_size=5, strides=1, padding='same',
+                   kernel_initializer=GlorotUniform(), activation=None)(inputs)
+        X = AveragePooling1D(pool_size=2, strides=2, padding='same')(X)
+        
+        # Layer 2: Further feature extraction
+        X = Conv1D(filters=12, kernel_size=3, strides=1, padding='same',
+                   kernel_initializer=GlorotUniform(), activation=None)(X)
+        X = AveragePooling1D(pool_size=2, strides=2, padding='same')(X)
+        
+        # Layer 3: Reduce feature map size
+        X = Conv1D(filters=16, kernel_size=3, strides=2, padding='same',
+                   kernel_initializer=GlorotUniform(), activation=None)(X)
+
+        X = Flatten()(X)
+        X = Dense(16, activation=None, kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.001))(X)
+        X = Dense(11, activation=None, kernel_initializer=GlorotUniform())(X)
+        
+        model = Model(inputs=inputs, outputs=X)
+        return model
+
+    def conv_S(self, input_shape):
+        inputs = Input(shape=input_shape)
+        
+        # Layer 1: Reduce temporal dimension with convolution
+        X = Conv1D(filters=4, kernel_size=2, strides=1, padding='same',
+                   kernel_initializer=GlorotUniform(), activation=None)(inputs)
+        X = AveragePooling1D(pool_size=2, strides=2, padding='same')(X)
+
+        # Layer 2: Additional convolution for feature extraction
+        X = Conv1D(filters=8, kernel_size=2, strides=1, padding='same',
+                   kernel_initializer=GlorotUniform(), activation=None)(X)
+
+        X = Flatten()(X)
+        X = Dense(4, activation=None, kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.001))(X)
+        
+        model = Model(inputs=inputs, outputs=X)
+        return model
+
+    def full_model(self):
+        w_inputs = {f'w{i}': Input(shape=(52, 1), dtype='float32', name=f'w{i}') for i in range(6)}
+        w_out = [self.conv_W((52, 1))(w) for w in w_inputs.values()]
+        w_out = Concatenate()(w_out)
+
+        s_inputs = {f's{i}': Input(shape=(6, 1), dtype='float32', name=f's{i}') for i in range(11)}
+        s_out = [self.conv_S((6, 1))(s) for s in s_inputs.values()]
+        s_out = Concatenate()(s_out)
+
+        m_input = Input(shape=(14, 1), dtype='float32', name='p')
+        static_features = Concatenate()([w_out, s_out, Reshape((14,))(m_input)])
+        static_features = Dense(64, activation=None, kernel_regularizer=l2(0.01), name="final_CNN_layer")(static_features)
+
+        avg_yield_input = Input(shape=(self.time_steps, 1), dtype=tf.float32, name='avg_yield')
+        x = avg_yield_input
+        for _ in range(self.num_layers):
+            x = LSTM(self.num_units, return_sequences=True, dropout=self.dropout)(x)
+        x = LSTM(self.num_units, return_sequences=False, dropout=self.dropout)(x)
+
+        combined = Concatenate()([x, static_features])
+        combined = Dense(16, activation=None)(combined)
+        output = Dense(1, activation=None, name='yield')(combined)
+
+        inputs = {**w_inputs, **s_inputs, 'p': m_input, 'avg_yield': avg_yield_input}
+        model = Model(inputs=inputs, outputs=output)
+        return model
+
