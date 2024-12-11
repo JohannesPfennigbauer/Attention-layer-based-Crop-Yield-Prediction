@@ -83,31 +83,31 @@ def format_data(X, time_steps, start_year):
     X_train = X_train[:, 3:]          # without loc_id, year, yield // shape (*, 392 + time_steps)
     print(f"Train data used: {X_train.shape}, starting from year {start_year}.")
 
-    X_train = np.expand_dims(X_train, axis=-1)    
-    X_train_in = {f'w{i}': X_train[:, 52*i:52*(i+1), :] for i in range(6)}
-    X_train_in.update({f's{i}': X_train[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
-    X_train_in['p'] = X_train[:, 378:392, :]
-    X_train_in['avg_yield'] = X_train[:, -time_steps:, :]
+    # X_train = np.expand_dims(X_train, axis=-1)    
+    # X_train_in = {f'w{i}': X_train[:, 52*i:52*(i+1), :] for i in range(6)}
+    # X_train_in.update({f's{i}': X_train[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
+    # X_train_in['p'] = X_train[:, 378:392, :]
+    # X_train_in['avg_yield'] = X_train[:, -time_steps:, :]
 
     # validation data
     X_val = X[X[:, 1] == 2017][:, 3:]
     y_val = X[X[:, 1] == 2017][:, 2].reshape(-1, 1, 1)
 
-    X_val = np.expand_dims(X_val, axis=-1)
-    X_val_in = {f'w{i}': X_val[:, 52*i:52*(i+1), :] for i in range(6)}
-    X_val_in.update({f's{i}': X_val[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
-    X_val_in['p'] = X_val[:, 378:392, :]
-    X_val_in['avg_yield'] = X_val[:, -time_steps:, :]
+    # X_val = np.expand_dims(X_val, axis=-1)
+    # X_val_in = {f'w{i}': X_val[:, 52*i:52*(i+1), :] for i in range(6)}
+    # X_val_in.update({f's{i}': X_val[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
+    # X_val_in['p'] = X_val[:, 378:392, :]
+    # X_val_in['avg_yield'] = X_val[:, -time_steps:, :]
 
     # testing data
     X_test = X[X[:, 1] == 2018][:, 3:]  
     y_test = X[X[:, 1] == 2018][:, 2].reshape(-1, 1, 1)
 
-    X_test = np.expand_dims(X_test, axis=-1) 
-    X_test_in = {f'w{i}': X_test[:, 52*i:52*(i+1), :] for i in range(6)}
-    X_test_in.update({f's{i}': X_test[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
-    X_test_in['p'] = X_test[:, 378:392, :]
-    X_test_in['avg_yield'] = X_test[:, -time_steps:, :]
+    # X_test = np.expand_dims(X_test, axis=-1) 
+    # X_test_in = {f'w{i}': X_test[:, 52*i:52*(i+1), :] for i in range(6)}
+    # X_test_in.update({f's{i}': X_test[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
+    # X_test_in['p'] = X_test[:, 378:392, :]
+    # X_test_in['avg_yield'] = X_test[:, -time_steps:, :]
 
     print("- Preprocessed data -")
     print("Train data", X_train.shape)
@@ -115,7 +115,7 @@ def format_data(X, time_steps, start_year):
     print("Test data", X_test.shape)
     print(f"Test data has mean {round(np.mean(y_test),2)} and std {round(np.std(y_test),2)}.\n")
 
-    return X_train_in, y_train, X_val_in, y_val, X_test_in, y_test
+    return X_train, y_train, X_val, y_val, X_test, y_test
 
 
 def get_sample(X, batch_size):
