@@ -10,8 +10,8 @@ def Preprocess(time_steps, start_year, save=False):
     start_year = 2000   # 1980 for full data
     del BigX
     
-    X, m, s = preprocess_data(X, time_steps)
-    X_train_in, y_train, X_val_in, y_val, X_test_in, y_test = format_data(X, time_steps, start_year)
+    X, M, S = preprocess_data(X, time_steps)
+    X_train_in, y_train, X_val_in, y_val, X_test_in, y_test = split_data(X, start_year)
     
     if save:
         np.savez_compressed('data/soybean_data_preprocessed.npz', 
@@ -22,7 +22,7 @@ def Preprocess(time_steps, start_year, save=False):
 
         print("Preprocessed data saved.")
     
-    return X_train_in, y_train, X_val_in, y_val, X_test_in, y_test, m, s
+    return X_train_in, y_train, X_val_in, y_val, X_test_in, y_test, M, S
     
     
 def preprocess_data(X, time_steps):
@@ -66,48 +66,28 @@ def preprocess_data(X, time_steps):
     for i in range(time_steps):
         avg_prev = np.array([avg[str(int(year - i))] if (year - i) > 1979 else 0 for year in X[:, 1] ])
         X = np.concatenate((X, avg_prev.reshape(-1, 1)), axis=1)
+        M = np.concatenate((M, avg_m.reshape(-1, 1)), axis=1)
+        S = np.concatenate((S, avg_s.reshape(-1, 1)), axis=1)
     
-    return X, M[0, 0], (S[0, 0] + epsilon)
+    return X, M, (S + epsilon)
 
 
 
-def format_data(X, time_steps, start_year):
+def split_data(X, start_year):
     """
-    Format the data for LSTM model.
+    split data into train, validation and test sets
     """
     
-    # training data
     X_train = X[(X[:, 1] <= 2016) & (X[:, 1] >= start_year)]
-    # X_train = get_sample(X_train, batch_size) if batch_size > 0 else X_train
     y_train = X_train[:, 2].reshape(-1, 1, 1)
     X_train = X_train[:, 3:]          # without loc_id, year, yield // shape (*, 392 + time_steps)
     print(f"Train data used: {X_train.shape}, starting from year {start_year}.")
 
-    # X_train = np.expand_dims(X_train, axis=-1)    
-    # X_train_in = {f'w{i}': X_train[:, 52*i:52*(i+1), :] for i in range(6)}
-    # X_train_in.update({f's{i}': X_train[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
-    # X_train_in['p'] = X_train[:, 378:392, :]
-    # X_train_in['avg_yield'] = X_train[:, -time_steps:, :]
-
-    # validation data
     X_val = X[X[:, 1] == 2017][:, 3:]
     y_val = X[X[:, 1] == 2017][:, 2].reshape(-1, 1, 1)
 
-    # X_val = np.expand_dims(X_val, axis=-1)
-    # X_val_in = {f'w{i}': X_val[:, 52*i:52*(i+1), :] for i in range(6)}
-    # X_val_in.update({f's{i}': X_val[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
-    # X_val_in['p'] = X_val[:, 378:392, :]
-    # X_val_in['avg_yield'] = X_val[:, -time_steps:, :]
-
-    # testing data
     X_test = X[X[:, 1] == 2018][:, 3:]  
     y_test = X[X[:, 1] == 2018][:, 2].reshape(-1, 1, 1)
-
-    # X_test = np.expand_dims(X_test, axis=-1) 
-    # X_test_in = {f'w{i}': X_test[:, 52*i:52*(i+1), :] for i in range(6)}
-    # X_test_in.update({f's{i}': X_test[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
-    # X_test_in['p'] = X_test[:, 378:392, :]
-    # X_test_in['avg_yield'] = X_test[:, -time_steps:, :]
 
     print("- Preprocessed data -")
     print("Train data", X_train.shape)
