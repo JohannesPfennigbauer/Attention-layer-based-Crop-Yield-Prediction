@@ -6,8 +6,6 @@ def Preprocess(time_steps, start_year, save=False):
     """
     BigX = np.load('../data/soybean_data_compressed.npz') ## order: locID, year, yield, W(52*6), S(6*11), P(14)
     X=BigX['data']
-    time_steps = 5      # number of time steps to include last years average yield for LSTM
-    start_year = 2000   # 1980 for full data
     del BigX
     
     X, M, S = preprocess_data(X, time_steps)
@@ -68,6 +66,10 @@ def preprocess_data(X, time_steps):
         X = np.concatenate((X, avg_prev.reshape(-1, 1)), axis=1)
         M = np.concatenate((M, avg_m.reshape(-1, 1)), axis=1)
         S = np.concatenate((S, avg_s.reshape(-1, 1)), axis=1)
+    
+    # Assertions to verify the preprocessing steps
+    assert X.shape[1] == 395 + time_steps, "The number of features after adding time steps is incorrect."
+    assert not np.any(np.isnan(X)), "There are NaN values in the preprocessed data."
     
     return X, M, (S + epsilon)
 

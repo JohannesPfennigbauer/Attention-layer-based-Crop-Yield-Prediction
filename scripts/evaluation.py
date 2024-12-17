@@ -9,7 +9,7 @@ from lime.lime_tabular import LimeTabularExplainer
 class EvaluateModel:
     def __init__(self, model, X_train, y_train, X_val, y_val, m, s):
         """
-        Initialize with the model, training and validation data, and optional scaling factors.
+        Initialize with the model, training and validation data, and rescaling factors.
         """
         self.model = model
         self.X_train = X_train
@@ -33,23 +33,31 @@ class EvaluateModel:
         return r2_score(y_true, y_pred)
 
 
-    def plot_actual_vs_predicted(self, y_train, y_train_p, y_val, y_val_p):
-        """Plots actual values versus predicted for training and validation data."""
+    def plot_actual_vs_predicted(self, y_train, y_train_p, y_val, y_val_p, save=None):
+        """
+        Scatterplot of actual vs predicted values for training and validation data.
+        Helps to visualize the model's performance.
+        """
         
         plt.figure(figsize=(10, 6))
         plt.scatter(y_train, y_train_p, label='Training Data', alpha=0.6, color='#606c38')
         plt.scatter(y_val, y_val_p, label='Validation Data', alpha=0.8, color='#bc6c25')
         plt.plot([y_train.min(), y_train.max()], [y_train.min(), y_train.max()], color='#283618', linestyle='--')
-        plt.title('Actual vs Predicted')
+        plt.title(f'{save} model: Actual vs Predicted')
         plt.xlabel('Actual')
         plt.ylabel('Predicted')
         plt.legend()
         plt.gca().set_facecolor('#fefae0')
+        if save != None:
+            plt.savefig(f"../assets/{save}_actual_vs_predicted.png")
         plt.show()
         
 
     def make_predictions(self):
-        """Make predictions on training and validation data."""
+        """
+        Make predictions on training and validation data.
+        Rescales the target values and predictions to their original scale and returns predictions.
+        """
         self.y_train = self.y_train.reshape(-1,1) * self.s + self.m
         self.y_val = self.y_val.reshape(-1,1) * self.s + self.m
         
@@ -64,8 +72,11 @@ class EvaluateModel:
         return y_train_pred, y_val_pred
 
 
-    def evaluate(self):
-        """Evaluate model performance."""
+    def evaluate(self, save=None):
+        """
+        Evaluate model performance in terms of RMSE, MAE and R² for training and validation data.
+        Also plots the actual vs predicted values.
+        """
         y_train_pred, y_val_pred = self.make_predictions()
         
         print("Training RMSE:", self.rmse(self.y_train, y_train_pred))
@@ -77,7 +88,7 @@ class EvaluateModel:
         print("Training R²:", self.r2(self.y_train, y_train_pred))
         print("Validation R²:", self.r2(self.y_val, y_val_pred))
         
-        self.plot_actual_vs_predicted(self.y_train, y_train_pred, self.y_val, y_val_pred)
+        self.plot_actual_vs_predicted(self.y_train, y_train_pred, self.y_val, y_val_pred, save=save)
 
 
 
@@ -93,53 +104,70 @@ class ExplainModel:
         self.M = M
         self.S = S
         self.time_steps = time_steps
-        self.features, self.features_seasons_dict = self._initialize_feature_names(time_steps)
+        
+        self.features, self.feature_groups, self.feature_subgroups, self.w_feature_seasons = None, None, None, None
+        self._initialize_feature_names(time_steps)
+        
         self.explainer = self._initialize_explainer()
         self.feature_impact = None
+
         
         
     def _initialize_feature_names(self, time_steps):
         """
-        Return feature names and dictionary with seasons for weather attributes.
+        Initialize feature names and categorizes them into groups, subgroups and growing seasons. The latter is only for weather features.
         """
-        w_vars = ['precipitation', 'solar-rad.', 'snow-water-equivalent', 'max temp', 'min temp', 'vapor pressure']
+        w_vars = ['precipitation', 'solar-rad.', 'snow-water-eq', 'max temp', 'min temp', 'vapor pressure']
         w_names = [f"{var}_{j}" for var in w_vars for j in range(1, 53)]
-        s_vars = ['bulk density', 'cation exchange', 'coarse fragments', 'clay', 'nitrogen', 'org. carbon density', 'org. carbon stock', 'pH', 'sand', 'silt', 'organic carbon']
+        s_vars = ['bulk density', 'cation exchange', 'coarse fragments', 'clay', 'nitrogen', 'org-c density', 'org. carbon stock', 'pH', 'sand', 'silt', 'organic carbon']
         s_depths = ['0-5', '5-15', '15-30', '30-60', '60-100', '100-120']
         s_names = [f"{var}_({depth})" for var in s_vars for depth in s_depths]
         m_names = [f"M{i}" for i in range(1, 15)]
         y_names = [f"Y-{i}" for i in range(1, time_steps+1)]
-        features = w_names + s_names + m_names + y_names
-        assert len(features) == 392 + time_steps
+        self.features = w_names + s_names + m_names + y_names
+        assert len(self.features) == 392 + time_steps
         
-        pattern = re.compile(r"_\d{1,2}")
-        weather_features = [feature for feature in features if pattern.search(feature)]
-        seasons_dict = {}
-        for feature in weather_features:
-            week_no = int(pattern.search(feature).group()[1:])
-            if week_no < 11:
-                seasons_dict[feature] = "Pre Planting"
-            elif week_no < 16:
-                seasons_dict[feature] = "Planting"
-            elif week_no < 26:
-                seasons_dict[feature] = "Early Growth"
-            elif week_no < 36:
-                seasons_dict[feature] = "Reproductive Growth"
-            elif week_no < 46:
-                seasons_dict[feature] = "Maturation/Harvest"
+        self.feature_groups = {}
+        self.feature_subgroups = {}
+        self.w_feature_seasons = {}
+        for feature in self.features:
+            if feature.startswith("Y"):
+                self.feature_groups[feature] = "yield"
+                self.feature_subgroups[feature] = feature
+            elif feature.startswith("M"):
+                self.feature_groups[feature] = "management"
+                self.feature_subgroups[feature] = feature
             else:
-                seasons_dict[feature] = "Post Harvest"
-        
-        return features, seasons_dict
+                subgroup = feature.split("_")[0]
+                if subgroup in s_vars:
+                    self.feature_groups[feature] = "soil"
+                    self.feature_subgroups[feature] = subgroup
+                elif subgroup in w_vars:
+                    self.feature_groups[feature] = "weather"
+                    self.feature_subgroups[feature] = subgroup
+                    week_no = int(feature.split("_")[1])
+                    if week_no < 11:
+                        self.w_feature_seasons[feature] = "Pre Planting"
+                    elif week_no < 16:
+                        self.w_feature_seasons[feature] = "Planting"
+                    elif week_no < 26:
+                        self.w_feature_seasons[feature] = "Early Growth"
+                    elif week_no < 36:
+                        self.w_feature_seasons[feature] = "Reproductive Growth"
+                    elif week_no < 46:
+                        self.w_feature_seasons[feature] = "Maturation/Harvest"
+                    else:
+                        self.w_feature_seasons[feature] = "Post Harvest"                     
+                else:
+                    raise ValueError(f"Invalid feature: {feature}")
     
     
     def _initialize_explainer(self):
         """
-        Initialize the explainer with the model.
+        Initialize the explainer with the model's training data.
         """
-        X_train_rescaled = self.X_train #* self.S + self.M
         explainer = LimeTabularExplainer(
-            X_train_rescaled,
+            self.X_train,
             mode="regression",
             feature_names=self.features,
             verbose=True,
@@ -194,50 +222,87 @@ class ExplainModel:
         self.feature_impact = sorted(feature_impact.items(), key=lambda x: x[1], reverse=True)
         
     
-    def feature_importance_table(self, model_name):
+    def get_feature_importance_table(self, model_name):
         """
-        Returns a table with the feature importance scores for weather attributes
+        Returns a table with the feature importance scores (as a percentage of total), group, subgroup and growing season for all attributes.
         """
-        feature_importance_table = pd.DataFrame(columns=["Model", "Feature", "Impact", "Season"])
-        pattern = re.compile(r"_\d{1,2}")
-        
-        for feature, impact in self.feature_impact:
-            if pattern.search(feature):
-                attribute = feature.split("<")[1].strip() if feature.count("<") == 2 \
-                    else feature.split(">")[1].strip() if feature.count(">") == 2 \
-                        else re.split(r"[<>=]", feature)[0].strip()
-                row = {"Model": model_name, "Feature": attribute, "Impact": impact, "Season": self.features_seasons_dict[attribute]}
-                feature_importance_table.loc[len(feature_importance_table)+1] = row
-        
+        feature_importance_table = pd.DataFrame(columns=["Model", "Group", "Subgroup", "Season", "Feature", "Impact"])
+
+        for condition, impact in self.feature_impact:
+            feature = condition.split("<")[1].strip() if condition.count("<") == 2 \
+                else condition.split(">")[1].strip() if condition.count(">") == 2 \
+                    else re.split(r"[<>=]", condition)[0].strip()
+
+            season = self.w_feature_seasons[feature] if feature in self.w_feature_seasons else None
+            row = {"Model": model_name,
+                   "Group": self.feature_groups[feature], 
+                   "Subgroup": self.feature_subgroups[feature],
+                   "Season": season,
+                   "Feature": feature, 
+                   "Impact": impact}
+
+            feature_importance_table.loc[len(feature_importance_table)+1] = row
+            feature_importance_table["Impact"] = feature_importance_table["Impact"] / feature_importance_table["Impact"].sum()
+            
         return feature_importance_table
 
-def compare_feature_impact(og_w_impact, att_w_impact):
+def compare_feature_impact(importance_table1, importance_table2, save=True):
     """
-    Plot feature importance for weather attributes.
+    Plot feature importance for groups, subgroups and seasons for two different models.
     """
-    combined_w_impact = pd.concat([og_w_impact, att_w_impact], axis=0)
-    m = combined_w_impact["Impact"].max()
-    merged_w_impact = pd.merge(og_w_impact, att_w_impact, on=["Feature", "Season"], suffixes=("_og", "_att"))
-    palette1 = {"original": "#606c38", "attention": "#bc6c25"}
-    palette2 = {"Pre Planting": "#A9AAA9", "Planting": "#BBE387", "Early Growth": "#606c38", "Reproductive Growth": "#283618", "Maturation/Harvest": "#dda15e", "Post Harvest": "#bc6c25"}
-    plot_data = combined_w_impact.groupby(["Model", "Season"]).sum("Impact").reset_index()
+    plt.figure(figsize=(12, 6))
+    gs = plt.GridSpec(2, 4, height_ratios=[1, 1])
     
-    fig, axes = plt.subplots(1, 2, figsize=(18, 6))
-    sns.barplot(ax=axes[0], x="Season", y="Impact", hue="Model", data=plot_data, palette=palette1, order=palette2.keys())
-    axes[0].set_title("Sum of Feature Impact per Model and Season")
-    axes[0].legend(title="Model", loc='upper right')
-    for tick in axes[0].get_xticklabels():
-        tick.set_rotation(45)
+    ax1 = plt.subplot(gs[0, :2])  # Big plot on the top left
+    ax2 = plt.subplot(gs[0, 2:])  # Big plot on the top right
+    ax3 = plt.subplot(gs[1, 0])  # Bottom-left plot 1
+    ax4 = plt.subplot(gs[1, 1])  # Bottom-left plot 2
+    ax5 = plt.subplot(gs[1, 2])  # Bottom-left plot 3
+    ax6 = plt.subplot(gs[1, 3])  # Bottom-left plot 4
+    axes = [ax1, ax2, ax3, ax4, ax5, ax6]
+    
+    palette = {"original": "#606c38", "attention": "#bc6c25"}
+    palette2 = {"Impact_og": "#606c38", "Impact_att": "#bc6c25"}
+    order = ["Pre Planting", "Planting", "Early Growth", "Reproductive Growth", "Maturation/Harvest", "Post Harvest"]
+    
+    # Plot groups
+    og_group_impact = importance_table1.groupby(["Model", "Group"]).sum("Impact").reset_index()
+    att_group_impact = importance_table2.groupby(["Model", "Group"]).sum("Impact").reset_index()
+    plot1_data = pd.concat([og_group_impact, att_group_impact], axis=0)
+        
+    sns.barplot(ax=axes[0], x="Impact", y="Group", hue="Model", data=plot1_data, palette=palette, orient='h')
+    axes[0].set_title("Impact per model and featue group")
+    axes[0].get_legend().remove()
 
-    sns.scatterplot(ax=axes[1], x="Impact_og", y="Impact_att", hue="Season", data=merged_w_impact, palette=palette2, hue_order=palette2.keys())
-    axes[1].plot([0, m], [0, m], color="grey")
-    axes[1].set_title("Feature Impact Comparison between Original and Attention Model")
-    axes[1].set_xlabel("Original Model")
-    axes[1].set_xlim(0, m)
-    axes[1].set_ylabel("Attention Model")
-    axes[1].set_ylim(0, m)
-    axes[1].legend(title="Season", loc='upper left')
-    plt.tight_layout()
+    # Plot weather features
+    og_w_impact = importance_table1[importance_table1["Group"] == "weather"]
+    att_w_impact = importance_table2[importance_table2["Group"] == "weather"]
+    combined_w_impact = pd.concat([og_w_impact, att_w_impact], axis=0)
+    plot2_data = combined_w_impact.groupby(["Model", "Season"]).sum("Impact").reset_index()
+    plot2_data["Model"] = pd.Categorical(plot2_data["Model"], categories=["original", "attention"], ordered=True)
+    
+    sns.barplot(ax=axes[1], x="Impact", y="Season", hue="Model", data=plot2_data, palette=palette, order=order)
+    axes[1].set_title("Weather features impact per model and season")
+    axes[1].legend(title="Model", loc='upper right')
+
+    # Plot subgroups
+    og_subgroup_impact = importance_table1.groupby(["Model", "Group", "Subgroup"]).sum("Impact").reset_index()
+    att_subgroup_impact = importance_table2.groupby(["Model", "Group", "Subgroup"]).sum("Impact").reset_index()
+    merged_data = pd.merge(og_subgroup_impact, att_subgroup_impact, on=["Group", "Subgroup"], suffixes=("_og", "_att"), how='outer')
+    groups = merged_data["Group"].unique()
+
+    for i, group in enumerate(groups):
+        ax = axes[i + 2]
+        group_data = merged_data[merged_data["Group"] == group]
+        group_data = group_data.melt(id_vars=["Subgroup"], value_vars=["Impact_og", "Impact_att"], var_name="Model", value_name="Impact")
+        sns.barplot(ax=ax, x="Impact", y="Subgroup", hue="Model", data=group_data, palette=palette2)
+        ax.set_title(f"{group}")
+        ax.set_ylabel('')
+        ax.get_legend().remove()
+        ax.set_facecolor('#fefae0')
     axes[0].set_facecolor('#fefae0')
     axes[1].set_facecolor('#fefae0')
+    plt.tight_layout()
+    if save:
+        plt.savefig(f"../assets/Feature_groups_impact_comparison.png")
     plt.show()

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import random
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Flatten, Dense, Conv1D, AveragePooling1D, Concatenate, Reshape, LSTM, Attention, MultiHeadAttention
 from tensorflow.keras.initializers import GlorotUniform
@@ -10,9 +11,17 @@ from tensorflow.keras.losses import Huber
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import Callback, LearningRateScheduler, EarlyStopping
 
+def set_seed(seed_value):
+    """
+    Set the random seed for reproducibility.
+    """
+    tf.random.set_seed(seed_value)
+    np.random.seed(seed_value)
+    random.seed(seed_value)
+
 class baseModel:
     """
-    Base Model class for both the original and attention-based models
+    Base Model class used for both the original and attention-based models
     """
     def __init__(self, learning_rate, time_steps):
         self.model = None
@@ -41,7 +50,7 @@ class baseModel:
                 kernel_initializer=GlorotUniform(), activation='relu')(X)
 
         X = Flatten()(X)
-        X = Dense(16, activation='relu', kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.001))(X)
+        X = Dense(16, activation='relu', kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.003))(X)
         X = Dense(11, activation='linear', kernel_initializer=GlorotUniform())(X)
         
         model = Model(inputs=inputs, outputs=X)
@@ -65,20 +74,20 @@ class baseModel:
                 data_format='channels_last')(X)
 
         X = Flatten()(X)
-        X = Dense(4, activation='linear', kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.001))(X)
+        X = Dense(4, activation='linear', kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.003))(X)
         
         model = Model(inputs=inputs, outputs=X)
         return model
     
     def scheduler(self, epoch, learning_rate):
         """
-        Learning rate scheduler for the model training. Halves the learning rate at epochs 60, 120, and 180.
+        Learning rate scheduler for the model training. Halves the learning rate at epochs 20, 40, and 60.
         """
-        if epoch == 60:
+        if epoch == 20:
             return learning_rate / 2
-        elif epoch == 120:
+        elif epoch == 40:
             return learning_rate / 2
-        elif epoch == 180:
+        elif epoch == 60:
             return learning_rate / 2
         else:
             return learning_rate
@@ -110,10 +119,11 @@ class baseModel:
     
     def fit(self, X_train, y_train, X_val, y_val, epochs):
         """
-        Fits the model on the training data and validates on the validation data. Uses Early Stopping on validation loss and Learning Rate Scheduler.
+        Fits the model on the training data and validates on the validation data. 
+        Uses Early Stopping on validation loss and Learning Rate Scheduler.
         """
         lr_scheduler = LearningRateScheduler(self.scheduler)
-        early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True, min_delta=0.001)
+        early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True, min_delta=0.001)
         self.history = self.model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, callbacks=[lr_scheduler, early_stopping])
         return self.model
     
@@ -150,7 +160,7 @@ class baseModel:
         
         return self.predict(X_in)
     
-    def plot_training_history(self):
+    def plot_training_history(self, save=None):
         """
         Visualize the training and validation loss over epochs.
         """
@@ -160,11 +170,13 @@ class baseModel:
         plt.figure(figsize=(10, 6))
         plt.plot(self.history.history['loss'], label='Training Loss', color='#606c38')
         plt.plot(self.history.history['val_loss'], label='Validation Loss', color='#bc6c25')
-        plt.title('Training and Validation Loss over Epochs')
+        plt.title(f'{save} model: Training and Validation Loss over Epochs')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
         plt.gca().set_facecolor('#fefae0')
+        if save != None:
+            plt.savefig(f'../assets/{save}_training_history.png')
         plt.show()
     
 
@@ -178,7 +190,8 @@ class OgModel(baseModel):
 
     def full_model(self):
         """
-        Full original model architecture with CNN for weather and soil data, LSTM for yield data, and Dense layers for static features.
+        Full original model architecture with CNN for weather and soil data, LSTM for yield data, 
+        and Dense layers for static features.
         """
         print("\n--- Model Architecture ---")
         print(" - CNN for Weather data - ")
@@ -237,7 +250,8 @@ class AttModel(baseModel):
         
     def conv_W(self, input_shape):
         """
-        Convolutional Neural Network for weather data, input shape (52, 1), output shape (11,), with additional attention layer after the first convolution.
+        Convolutional Neural Network for weather data, input shape (52, 1), output shape (11,), 
+        with additional attention layer after the first convolution.
         """
         inputs = Input(shape=input_shape)
 
@@ -261,7 +275,7 @@ class AttModel(baseModel):
                 kernel_initializer=GlorotUniform(), activation='relu')(X)
 
         X = Flatten()(X)
-        X = Dense(16, activation='relu', kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.004))(X)
+        X = Dense(16, activation='relu', kernel_initializer=GlorotUniform(), kernel_regularizer=l2(0.003))(X)
         X = Dense(11, activation='linear', kernel_initializer=GlorotUniform())(X)
 
         # Model
@@ -271,7 +285,9 @@ class AttModel(baseModel):
 
     def full_model(self):
         """
-        The full original model architecture with CNN for weather and soil data, LSTM for yield data, and Dense layers for static features, plus an additional Multi-Head Attention layer for weather data. It also uses CNN with attention for weather data.
+        The full original model architecture with CNN for weather and soil data, LSTM for yield data, 
+        and Dense layers for static features, plus an additional Multi-Head Attention layer for weather data. 
+        It also uses the CNN with standard attention for weather data.
         """
         print("\n--- Model Architecture ---")
         print(" - CNN for Weather data - ")
@@ -326,7 +342,8 @@ class AttModel(baseModel):
     
     def fit(self, X_train, y_train, X_val, y_val, epochs):
         """
-        A specialized fit method for the attention model that includes an additional callback to store attention weights.
+        A specialized fit method for the attention model that includes an 
+        additional callback to store attention weights.
         """
         lr_scheduler = LearningRateScheduler(self.scheduler)
         early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True, min_delta=0.001)
@@ -361,7 +378,8 @@ class AttentionWeightsCallback(Callback):
         
     def visualize_attention(self):
         """
-        Visualisation of the attention weights for the final epoch of the training.
+        (Currently not used.)
+        Visualisation of the attention weights for the final epoch of the training. 
         """
         if not self.weights:
             raise ValueError("No weather attention scores found.")
