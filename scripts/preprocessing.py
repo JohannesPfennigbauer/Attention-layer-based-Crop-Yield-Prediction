@@ -16,7 +16,7 @@ def Preprocess(time_steps, start_year, save=False):
                             X_train=X_train_in, y_train=y_train, 
                             X_val=X_val_in, y_val=y_val, 
                             X_test=X_test_in, y_test=y_test, 
-                            m=m, s=s)
+                            M=M, S=S)
 
         print("Preprocessed data saved.")
     
