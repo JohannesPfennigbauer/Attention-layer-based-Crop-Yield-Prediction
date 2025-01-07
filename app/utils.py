@@ -1,17 +1,20 @@
 import plotly.express as px
 from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 from urllib.request import urlopen
 import json
+import streamlit as st
 
 # Load geojson for map
 def load_geojson(url):
     with urlopen(url) as response:
         return json.load(response)
+   
     
 # Plot functions
-def create_map_plot(val_df):
+def create_map_plot(val_df, selected_county=None):
     counties = load_geojson('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json')
  
     fig = px.choropleth_mapbox(
@@ -25,9 +28,54 @@ def create_map_plot(val_df):
         zoom=4,
         center={"lat": 43, "lon": -94},
         opacity=0.5,
-        labels={'yield_pred_att': 'Yield Prediction', 'FIPS_cty': 'County FIPS', 'County_State': 'County, State', 'year': 'Year'},
-        hover_data={'County_State': True, 'year': True}
+        labels={'yield_pred_att': 'Yield Prediction', 'yield': 'Yield Actual', 'FIPS_cty': 'County FIPS', 'County_State': 'County, State', 'year': 'Year'},
+        hover_data={'County_State': True, 'year': True, 'yield': True, 'yield_pred_att': True}
     )
+    
+    if selected_county:
+        selected_fips = val_df[val_df['County_State'] == selected_county]['FIPS_cty'].values[0]
+        yield_pred = val_df[val_df['County_State'] == selected_county]['yield_pred_att'].values[0]
+        yield_actual = val_df[val_df['County_State'] == selected_county]['yield'].values[0]
+        year = val_df[val_df['County_State'] == selected_county]['year'].values[0]
+
+        geometry = None
+        for feature in counties['features']:
+            if feature['id'] == selected_fips:
+                geometry = feature['geometry']
+                break
+        
+        if geometry:
+            if geometry['type'] == 'Polygon':
+                lat = [coord[1] for coord in geometry['coordinates'][0]]
+                lon = [coord[0] for coord in geometry['coordinates'][0]]
+                fig.add_trace(go.Scattermapbox(
+                    lat=lat,
+                    lon=lon,
+                    mode='lines',
+                    line=dict(width=2, color='red'),
+                    fill='toself',
+                    fillcolor='rgba(255, 0, 0, 0.2)',
+                    hovertext=f"County: {selected_county}<br>"
+                          f"Year: {year}<br>"
+                          f"Actual Yield: {yield_actual}<br>"
+                          f"Predicted Yield: {yield_pred}",
+                    hoverinfo='text'
+                ))
+            elif geometry['type'] == 'MultiPolygon':
+                for polygon in geometry['coordinates']:
+                    for ring in polygon:
+                        lat = [coord[1] for coord in geometry['coordinates'][0]]
+                        lon = [coord[0] for coord in geometry['coordinates'][0]]
+                        fig.add_trace(go.Scattermapbox(
+                            lat=lat,
+                            lon=lon,
+                            mode='lines',
+                            line=dict(width=2, color='red'),
+                            fill='toself',
+                            fillcolor='rgba(255, 0, 0, 0.9)',
+                            hoverinfo='none'
+                        ))
+    
     fig.update_layout(
         height=450,
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
@@ -36,15 +84,26 @@ def create_map_plot(val_df):
         )
     return fig
 
-def create_actual_vs_predicted_plot(train_df, val_df):
+
+def create_actual_vs_predicted_plot(train_df, val_df, selected_region=None):
     combined_df = pd.concat([train_df.assign(dataset='training'), val_df.assign(dataset='validation')])
-    palette = ['#606c38','#bc6c25']
+    palette = ['rgba(96, 108, 56, 0.6)', 'rgba(188, 108, 37, 0.6)']
+    order = ['training', 'validation']
+    symbols = ['circle', 'circle']
+    if selected_region:
+        palette.append('red')
+        order.append('selected')
+        symbols.append('x')
+        combined_df.loc[combined_df['County_State'] == selected_region, 'dataset'] = 'selected'
+        
     fig = px.scatter(
         combined_df,
         x='yield',
         y='yield_pred_att',
         color='dataset',
-        color_discrete_map={key: value for key, value in zip(['training', 'validation'], palette)},
+        color_discrete_map={key: value for key, value in zip(order, palette)},
+        symbol='dataset',
+        symbol_map={key: value for key, value in zip(order, symbols)},
         labels={'yield': 'Actual', 'yield_pred_att': 'Predicted', 'color': 'Dataset', 'year': 'Year'},
         hover_data={'County_State': True, 'year': True},
     )
@@ -55,7 +114,7 @@ def create_actual_vs_predicted_plot(train_df, val_df):
         x1=combined_df['yield'].max(), y1=combined_df['yield'].max(),
         line=dict(color='#87BF7B', dash='dash')
     )
-    
+        
     fig.update_layout(
         height=450,
         paper_bgcolor='rgba(201, 169, 135, 0.1)',
@@ -75,7 +134,9 @@ def create_actual_vs_predicted_plot(train_df, val_df):
         xaxis=dict(showgrid=True, gridcolor='#D4D4D4'),
         yaxis=dict(showgrid=True, gridcolor='#D4D4D4')
     )
+    
     return fig
+
 
 def create_featuregroups_plot(importance_table1, importance_table2):
     """
@@ -141,6 +202,7 @@ def create_featuregroups_plot(importance_table1, importance_table2):
     )
 
     return fig1, fig2
+
 
 def create_bottom_plot(importance_table1, importance_table2):
     """
