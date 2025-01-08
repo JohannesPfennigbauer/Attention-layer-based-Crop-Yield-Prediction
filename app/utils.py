@@ -85,11 +85,11 @@ def create_map_plot(val_df, selected_county=None):
     return fig
 
 
-def create_actual_vs_predicted_plot(train_df, val_df, selected_region=None):
-    combined_df = pd.concat([train_df.assign(dataset='training'), val_df.assign(dataset='validation')])
-    palette = ['rgba(96, 108, 56, 0.6)', 'rgba(188, 108, 37, 0.6)']
-    order = ['training', 'validation']
-    symbols = ['circle', 'circle']
+def create_actual_vs_predicted_plot(train_df, val_df, test_df, selected_region=None):
+    combined_df = pd.concat([train_df.assign(dataset='training'), val_df.assign(dataset='validation'), test_df.assign(dataset='test')])
+    palette = ['rgba(96, 108, 56, 0.6)', 'rgba(188, 108, 37, 0.6)', 'rgba(255, 255, 255, 0.9)']
+    order = ['training', 'validation', 'test']
+    symbols = ['circle', 'circle', 'circle']
     if selected_region:
         palette.append('red')
         order.append('selected')
@@ -258,17 +258,14 @@ def create_bottom_plot(importance_table1, importance_table2):
     
     
 # Interactivity
-def predict_wrapper(model, X, time_steps=5, loc_id=None):
+def predict_wrapper(model, X, time_steps=5):   
     """
     Wrapper function to handle the input data, format it as dictionary and make predictions.
     """
-    if loc_id is not None:
-        X = X[X[:, 0] == loc_id]
-    X = X[:, 3:] # without loc_id, year and yield
     X = np.expand_dims(X, axis=-1)
     X_in = {f'w{i}': X[:, 52*i:52*(i+1), :] for i in range(6)}
     X_in.update({f's{i}': X[:, 312+6*i:312+6*(i+1), :] for i in range(11)})
     X_in['p'] = X[:, 378:392, :]
-    X_in['avg_yield'] = X[:, -time_steps:, :]
+    X_in['avg_yield'] = X[:, - time_steps:, :]
     
     return model.predict(X_in)
