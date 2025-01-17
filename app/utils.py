@@ -87,14 +87,14 @@ def create_map_plot(val_df, selected_county=None):
 
 def create_actual_vs_predicted_plot(train_df, val_df, test_df, selected_region=None):
     combined_df = pd.concat([train_df.assign(dataset='training'), val_df.assign(dataset='validation'), test_df.assign(dataset='test')])
-    palette = ['rgba(96, 108, 56, 0.6)', 'rgba(188, 108, 37, 0.6)', 'rgba(255, 255, 255, 0.9)']
+    palette = ['rgba(96, 108, 56, 0.6)', 'rgba(188, 108, 37, 0.6)', 'rgba(227, 24, 24, 1)']
     order = ['training', 'validation', 'test']
-    symbols = ['circle', 'circle', 'circle']
+    symbols = ['circle', 'circle', 'circle-x']
     if selected_region:
-        palette.append('red')
+        palette.append('rgba(225, 224, 224, 1)')
         order.append('selected')
-        symbols.append('x')
-        combined_df.loc[combined_df['County_State'] == selected_region, 'dataset'] = 'selected'
+        symbols.append('circle-x')
+        combined_df.loc[(combined_df['County_State'] == selected_region) & (combined_df['dataset'] != 'test'), 'dataset'] = 'selected'
         
     fig = px.scatter(
         combined_df,
