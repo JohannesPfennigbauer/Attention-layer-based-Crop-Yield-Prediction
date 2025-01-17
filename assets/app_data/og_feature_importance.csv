@@ -1,0 +1,87 @@
+Model,Group,Subgroup,Season,Feature,Impact
+original,management,M13,,M13,9.231636569300606e-17
+original,management,M14,,M14,2.877052421216607e-16
+original,management,M2,,M2,9.663978173350556e-16
+original,weather,max temp,Reproductive Growth,max temp_32,3.2964005051806917e-15
+original,management,M1,,M1,1.0763470984750023e-14
+original,management,M3,,M3,3.4707288861803106e-14
+original,management,M7,,M7,1.0893530498482004e-13
+original,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_40,3.3460381566215536e-13
+original,weather,max temp,Early Growth,max temp_24,1.0236698486597177e-12
+original,weather,snow-water-eq,Early Growth,snow-water-eq_23,3.0261163792936962e-12
+original,weather,max temp,Maturation/Harvest,max temp_38,8.891913768690158e-12
+original,weather,max temp,Early Growth,max temp_23,2.4199347914945828e-11
+original,weather,max temp,Reproductive Growth,max temp_31,5.657538408452518e-11
+original,weather,snow-water-eq,Early Growth,snow-water-eq_22,1.3393883461032929e-10
+original,weather,max temp,Reproductive Growth,max temp_35,3.0622772207071324e-10
+original,weather,max temp,Reproductive Growth,max temp_29,6.776366657837069e-10
+original,weather,max temp,Reproductive Growth,max temp_34,1.4952505879638737e-09
+original,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_41,3.33965391217255e-09
+original,weather,max temp,Early Growth,max temp_20,6.888250594861939e-09
+original,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_39,1.4608988203455932e-08
+original,management,M5,,M5,3.0272840806406254e-08
+original,weather,max temp,Early Growth,max temp_21,6.223028713416873e-08
+original,weather,vapor pressure,Maturation/Harvest,vapor pressure_38,1.2782567622204687e-07
+original,management,M12,,M12,2.5507466006265517e-07
+original,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_38,5.018908747765472e-07
+original,weather,solar-rad.,Post Harvest,solar-rad._48,9.843073058206968e-07
+original,weather,max temp,Reproductive Growth,max temp_30,1.6588568019617121e-06
+original,weather,max temp,Maturation/Harvest,max temp_36,2.9343739280122702e-06
+original,weather,solar-rad.,Post Harvest,solar-rad._47,4.375290824397246e-06
+original,weather,vapor pressure,Maturation/Harvest,vapor pressure_42,6.9510566864534075e-06
+original,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_42,1.0952031689577284e-05
+original,weather,snow-water-eq,Early Growth,snow-water-eq_21,1.7374217380941725e-05
+original,weather,max temp,Reproductive Growth,max temp_31,2.5742857818772014e-05
+original,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_43,3.8975394138375636e-05
+original,weather,max temp,Maturation/Harvest,max temp_39,5.974004180728156e-05
+original,weather,solar-rad.,Early Growth,solar-rad._23,9.076319460397113e-05
+original,weather,max temp,Early Growth,max temp_22,0.00013890043629960372
+original,weather,max temp,Reproductive Growth,max temp_28,0.00020837297454542387
+original,soil,bulk density,,bulk density_(100-120),0.00029712965474875693
+original,weather,max temp,Reproductive Growth,max temp_26,0.00041604714674175455
+original,soil,org-c density,,org-c density_(30-60),0.0005365174375595923
+original,weather,max temp,Reproductive Growth,max temp_29,0.0006966351139790877
+original,weather,max temp,Maturation/Harvest,max temp_45,0.0009517627535384275
+original,weather,max temp,Reproductive Growth,max temp_30,0.00123883976541528
+original,weather,max temp,Maturation/Harvest,max temp_44,0.001634532230811286
+original,weather,vapor pressure,Maturation/Harvest,vapor pressure_39,0.001817427685641461
+original,soil,pH,,pH_(100-120),0.0022887795189184294
+original,weather,max temp,Reproductive Growth,max temp_30,0.002904207578088515
+original,weather,max temp,Reproductive Growth,max temp_29,0.003694719055491847
+original,soil,pH,,pH_(60-100),0.004521162942445145
+original,weather,max temp,Early Growth,max temp_25,0.005548012466471136
+original,weather,snow-water-eq,Early Growth,snow-water-eq_18,0.0068155635069135695
+original,soil,bulk density,,bulk density_(60-100),0.007305922897512492
+original,weather,solar-rad.,Post Harvest,solar-rad._46,0.008779401473842138
+original,weather,vapor pressure,Maturation/Harvest,vapor pressure_43,0.009172448586801324
+original,weather,snow-water-eq,Early Growth,snow-water-eq_19,0.010354163517253599
+original,weather,snow-water-eq,Early Growth,snow-water-eq_24,0.01131198974200564
+original,weather,precipitation,Reproductive Growth,precipitation_33,0.012982665845716388
+original,soil,org-c density,,org-c density_(15-30),0.015001781029168881
+original,weather,max temp,Maturation/Harvest,max temp_40,0.015414687136008635
+original,weather,max temp,Reproductive Growth,max temp_33,0.01423912935106844
+original,weather,solar-rad.,Post Harvest,solar-rad._46,0.014802524412216599
+original,weather,vapor pressure,Planting,vapor pressure_12,0.015505877927108067
+original,weather,max temp,Post Harvest,max temp_50,0.016656685917707855
+original,weather,max temp,Planting,max temp_12,0.01806904598417985
+original,weather,precipitation,Reproductive Growth,precipitation_34,0.01913322274327664
+original,weather,max temp,Maturation/Harvest,max temp_37,0.020623648970196577
+original,soil,clay,,clay_(60-100),0.020895165586967242
+original,weather,solar-rad.,Post Harvest,solar-rad._49,0.022656968800499666
+original,soil,org-c density,,org-c density_(100-120),0.024461668305550025
+original,weather,solar-rad.,Pre Planting,solar-rad._4,0.025385763094171374
+original,soil,sand,,sand_(5-15),0.027355961436511114
+original,soil,pH,,pH_(0-5),0.02912558634001144
+original,soil,cation exchange,,cation exchange_(5-15),0.03138316669771765
+original,weather,max temp,Reproductive Growth,max temp_33,0.03379455016852614
+original,weather,vapor pressure,Maturation/Harvest,vapor pressure_41,0.03642443862727292
+original,weather,vapor pressure,Post Harvest,vapor pressure_49,0.038714417750462325
+original,weather,solar-rad.,Reproductive Growth,solar-rad._31,0.0412601872278356
+original,soil,pH,,pH_(5-15),0.043906036380055684
+original,soil,nitrogen,,nitrogen_(100-120),0.04692555525560926
+original,weather,max temp,Post Harvest,max temp_46,0.0503314075575764
+original,soil,cation exchange,,cation exchange_(0-5),0.05210513032360192
+original,weather,min temp,Pre Planting,min temp_3,0.054000880125861205
+original,soil,org-c density,,org-c density_(60-100),0.05706747482692887
+original,management,M6,,M6,0.05915757862039922
+original,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_44,0.06172480061128821

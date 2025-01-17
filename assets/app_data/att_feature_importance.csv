@@ -1,0 +1,112 @@
+Model,Group,Subgroup,Season,Feature,Impact
+attention,management,M1,,M1,3.338234238282922e-17
+attention,weather,snow-water-eq,Early Growth,snow-water-eq_22,1.0792291844831396e-16
+attention,weather,snow-water-eq,Early Growth,snow-water-eq_23,4.478222425854601e-16
+attention,management,M2,,M2,1.5239471124334842e-15
+attention,management,M7,,M7,4.642033008539804e-15
+attention,management,M3,,M3,1.4035842415660757e-14
+attention,management,M13,,M13,4.086038204185496e-14
+attention,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_38,1.1159764597053558e-13
+attention,yield,Y-1,,Y-1,2.927133739325635e-13
+attention,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_42,7.41265757792617e-13
+attention,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_41,1.782672230381195e-12
+attention,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_40,4.369015165559738e-12
+attention,management,M14,,M14,1.033628772765031e-11
+attention,weather,vapor pressure,Planting,vapor pressure_15,2.322227440548333e-11
+attention,weather,max temp,Reproductive Growth,max temp_32,5.35980066823059e-11
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_31,1.2194185887563103e-10
+attention,yield,Y-2,,Y-2,2.7063431422372524e-10
+attention,soil,org-c density,,org-c density_(30-60),5.583912418698655e-10
+attention,management,M4,,M4,1.180954905123033e-09
+attention,weather,snow-water-eq,Early Growth,snow-water-eq_21,2.5053425276781204e-09
+attention,management,M5,,M5,4.901944213055771e-09
+attention,soil,org-c density,,org-c density_(15-30),9.264907839477035e-09
+attention,weather,vapor pressure,Pre Planting,vapor pressure_9,1.5757260455999506e-08
+attention,weather,vapor pressure,Pre Planting,vapor pressure_8,2.821604474167742e-08
+attention,weather,vapor pressure,Early Growth,vapor pressure_16,4.9722466805271136e-08
+attention,yield,Y-3,,Y-3,8.89726144311224e-08
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_29,1.5695129888852577e-07
+attention,weather,precipitation,Reproductive Growth,precipitation_29,2.6627434669122325e-07
+attention,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_39,4.491252724181865e-07
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_30,7.074859278900067e-07
+attention,weather,snow-water-eq,Early Growth,snow-water-eq_20,1.0706344387838356e-06
+attention,weather,max temp,Reproductive Growth,max temp_34,1.5811186546395345e-06
+attention,soil,bulk density,,bulk density_(60-100),2.1922812517923083e-06
+attention,weather,precipitation,Reproductive Growth,precipitation_33,3.266605323451311e-06
+attention,weather,precipitation,Reproductive Growth,precipitation_32,4.8617344968098e-06
+attention,weather,vapor pressure,Planting,vapor pressure_14,7.126155225452403e-06
+attention,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_43,9.556778239427159e-06
+attention,weather,precipitation,Reproductive Growth,precipitation_30,1.256779159808319e-05
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_28,1.7488015810096992e-05
+attention,soil,org-c density,,org-c density_(15-30),2.331519762548091e-05
+attention,weather,precipitation,Reproductive Growth,precipitation_31,3.151816858301608e-05
+attention,weather,precipitation,Reproductive Growth,precipitation_31,4.275251774711979e-05
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_32,5.828374622277093e-05
+attention,weather,snow-water-eq,Early Growth,snow-water-eq_24,7.468143266836408e-05
+attention,weather,vapor pressure,Early Growth,vapor pressure_24,9.964747738751535e-05
+attention,weather,precipitation,Reproductive Growth,precipitation_31,0.00012488503369942572
+attention,weather,precipitation,Reproductive Growth,precipitation_32,0.00016126830459535542
+attention,weather,precipitation,Reproductive Growth,precipitation_34,0.000210684601352513
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_27,0.00027176373214734243
+attention,yield,Y-4,,Y-4,0.0002974133515242215
+attention,soil,bulk density,,bulk density_(100-120),0.00036885689972787535
+attention,weather,max temp,Reproductive Growth,max temp_30,0.00040530683512636837
+attention,weather,vapor pressure,Early Growth,vapor pressure_17,0.0004472658639483194
+attention,soil,cation exchange,,cation exchange_(15-30),0.0005319232310913674
+attention,soil,bulk density,,bulk density_(60-100),0.0006288078255869009
+attention,weather,snow-water-eq,Early Growth,snow-water-eq_18,0.0007389591674279907
+attention,weather,precipitation,Reproductive Growth,precipitation_33,0.0008582948358753399
+attention,soil,org-c density,,org-c density_(100-120),0.0010151945521479273
+attention,soil,bulk density,,bulk density_(100-120),0.001173767249066916
+attention,weather,max temp,Reproductive Growth,max temp_35,0.0013854835936620638
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_30,0.0016155365964609513
+attention,weather,max temp,Reproductive Growth,max temp_28,0.001852114436549804
+attention,soil,cation exchange,,cation exchange_(100-120),0.0021419897890955935
+attention,weather,max temp,Reproductive Growth,max temp_28,0.002408592867232728
+attention,weather,max temp,Reproductive Growth,max temp_29,0.002775347489600882
+attention,weather,precipitation,Reproductive Growth,precipitation_32,0.002994245795752089
+attention,weather,vapor pressure,Pre Planting,vapor pressure_7,0.0034076478150259033
+attention,weather,vapor pressure,Pre Planting,vapor pressure_10,0.0037484755464445253
+attention,weather,max temp,Reproductive Growth,max temp_30,0.003412310276439376
+attention,soil,cation exchange,,cation exchange_(100-120),0.0036975990075050484
+attention,weather,precipitation,Reproductive Growth,precipitation_35,0.004073255444227978
+attention,soil,bulk density,,bulk density_(100-120),0.004485007762077007
+attention,soil,clay,,clay_(100-120),0.004945208228366608
+attention,weather,precipitation,Reproductive Growth,precipitation_29,0.005398120962628852
+attention,weather,vapor pressure,Early Growth,vapor pressure_23,0.0059371417685945
+attention,soil,bulk density,,bulk density_(15-30),0.006436249243825167
+attention,weather,vapor pressure,Early Growth,vapor pressure_22,0.007104440606197272
+attention,weather,precipitation,Reproductive Growth,precipitation_34,0.007625803888509556
+attention,weather,solar-rad.,Maturation/Harvest,solar-rad._44,0.007948199964849715
+attention,soil,silt,,silt_(5-15),0.00856143645557847
+attention,yield,Y-5,,Y-5,0.009142243411978293
+attention,soil,bulk density,,bulk density_(5-15),0.009972246908965756
+attention,weather,precipitation,Reproductive Growth,precipitation_35,0.010566304947642557
+attention,management,M8,,M8,0.011285442326711493
+attention,soil,clay,,clay_(60-100),0.012200263960934904
+attention,weather,vapor pressure,Planting,vapor pressure_13,0.013215833174762054
+attention,weather,vapor pressure,Maturation/Harvest,vapor pressure_38,0.01410354488644315
+attention,weather,precipitation,Planting,precipitation_13,0.015244052707322178
+attention,soil,cation exchange,,cation exchange_(5-15),0.016386648164274157
+attention,weather,snow-water-eq,Maturation/Harvest,snow-water-eq_44,0.017713352976911265
+attention,weather,max temp,Maturation/Harvest,max temp_38,0.019120328345962657
+attention,weather,precipitation,Reproductive Growth,precipitation_30,0.020518404053090477
+attention,soil,bulk density,,bulk density_(60-100),0.021803905094367092
+attention,soil,silt,,silt_(15-30),0.02335382551652626
+attention,weather,vapor pressure,Early Growth,vapor pressure_25,0.02501535515028783
+attention,management,M11,,M11,0.02643318275486101
+attention,weather,precipitation,Reproductive Growth,precipitation_34,0.028115131150790545
+attention,weather,vapor pressure,Reproductive Growth,vapor pressure_29,0.02889611087414546
+attention,management,M10,,M10,0.030754536397508293
+attention,soil,coarse fragments,,coarse fragments_(100-120),0.0329593889624878
+attention,weather,max temp,Reproductive Growth,max temp_33,0.035100774779813465
+attention,weather,solar-rad.,Maturation/Harvest,solar-rad._44,0.03748321651924613
+attention,weather,max temp,Reproductive Growth,max temp_33,0.04011402073558503
+attention,soil,clay,,clay_(30-60),0.04269123562630234
+attention,weather,precipitation,Reproductive Growth,precipitation_28,0.04501380576147233
+attention,soil,org-c density,,org-c density_(30-60),0.04627108571846101
+attention,weather,solar-rad.,Early Growth,solar-rad._23,0.048573254504459186
+attention,weather,snow-water-eq,Early Growth,snow-water-eq_19,0.051764031626807525
+attention,soil,cation exchange,,cation exchange_(100-120),0.05298281474725186
+attention,soil,org-c density,,org-c density_(15-30),0.05630931233804688
+attention,management,M12,,M12,0.057316055795501294

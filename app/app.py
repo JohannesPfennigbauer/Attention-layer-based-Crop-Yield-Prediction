@@ -10,15 +10,15 @@ from evaluation import ExplainModel
 import tensorflow as tf
 
 # Load data
-train_df = pd.read_csv('data/train_df.csv')
-val_df = pd.read_csv('data/val_df.csv')
+train_df = pd.read_csv('assets/app_data/train_df.csv')
+val_df = pd.read_csv('assets/app_data/val_df.csv')
 val_df['FIPS_cty'] = val_df['FIPS_cty'].astype(str)
 test_df = pd.DataFrame(columns=['loc_id', 'year', 'yield', 'yield_pred_og', 'yield_pred_att', 'County_State'])
-data = np.load('data/app_data.npz')
+data = np.load('assets/app_data/app_data.npz')
 X_train = data['X_train']
 M = data['M']
 S = data['S']
-data2 = np.load('data/test_data.npz')
+data2 = np.load('assets/app_data/test_data.npz')
 test_data = data2['test_data']
 
 # Load models
@@ -40,9 +40,9 @@ def initialize_session_state():
     if "fig_map" not in st.session_state:
         st.session_state["fig_map"] = create_map_plot(val_df, None)
     if "og_feature_importance" not in st.session_state:
-        st.session_state["og_feature_importance"] = pd.read_csv('data/og_feature_importance.csv')
+        st.session_state["og_feature_importance"] = pd.read_csv('assets/app_data/og_feature_importance.csv')
     if "att_feature_importance" not in st.session_state:
-        st.session_state["att_feature_importance"] = pd.read_csv('data/att_feature_importance.csv')
+        st.session_state["att_feature_importance"] = pd.read_csv('assets/app_data/att_feature_importance.csv')
 
 def update_map():
     st.session_state["selected_county"] = st.session_state["county_dropdown"]
